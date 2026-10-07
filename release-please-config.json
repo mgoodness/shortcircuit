@@ -6,8 +6,7 @@
   "packages": {
     ".": {
       "package-name": "shortcircuit",
-      "include-component-in-tag": false,
-      "release-as": "2.0.0"
+      "include-component-in-tag": false
     }
   }
 }
