@@ -50,5 +50,5 @@ its own line and identity.
 This fork tracks upstream opportunistically. Contributions back upstream live on
 branches cut from `upstream/master` and carry only the upstreamable change;
 fork-only work — the release identity, release automation, and fork docs — stays
-on `master` and never enters those branches. Whether a contribution lands
+on `main` and never enters those branches. Whether a contribution lands
 upstream or not does not block work here.
