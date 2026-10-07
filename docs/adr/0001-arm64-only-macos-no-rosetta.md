@@ -1,8 +1,12 @@
 ---
-status: accepted
+status: superseded by [ADR-0002](0002-both-macos-arches-and-fork-release-channel.md)
 ---
 
 # Drop Intel Mac support; ship arm64-only, no Rosetta fallback
+
+> Superseded by [ADR-0002](0002-both-macos-arches-and-fork-release-channel.md):
+> the fork now builds both macOS architectures. The reasoning here — PySide2/Qt5
+> is EOL, and Rosetta is a tax rather than a fix — still holds.
 
 Short Circuit moved from PySide2/Qt5 to PySide6/Qt6 to get native Apple Silicon
 support (see [`docs/migration-pyside6-arm64.md`](../migration-pyside6-arm64.md)

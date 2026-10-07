@@ -1,10 +1,14 @@
 # Migrating Short Circuit from PySide2/Qt5 to PySide6/Qt6 (native Apple Silicon)
 
+> **Superseded in part.** [ADR-0002](adr/0002-both-macos-arches-and-fork-release-channel.md)
+> retains Intel support, so both macOS architectures now build. The arm64-only
+> instructions below describe the original, narrower plan.
+
 Consolidated execution spec produced by the [Migrate PySide2 to PySide6: native Apple Silicon support](https://github.com/mgoodness/shortcircuit/issues/1) wayfinder map. Every decision below was resolved on that map's child tickets; this document synthesizes them into a top-to-bottom checklist so an implementer (human or `/implement-spec`) doesn't need to re-read the tracker. Links back to each ticket are included for the full reasoning/evidence trail.
 
 ## Platform support statement (the destination)
 
-- **macOS: arm64-only.** Intel Mac support is dropped. See [ADR-0001](adr/0001-arm64-only-macos-no-rosetta.md) for why (Rosetta and universal2 were both considered and rejected).
+- **macOS: arm64 and x86_64.** Both build. [ADR-0001](adr/0001-arm64-only-macos-no-rosetta.md) dropped Intel, but [ADR-0002](adr/0002-both-macos-arches-and-fork-release-channel.md) supersedes it: PySide6's universal2 wheel makes the second slice cheap enough to keep.
 - **Windows / Linux: unchanged**, still x86_64. This migration does not touch their build or CI legs.
 - **Codesigning / notarization: unchanged (still unsigned).** Explicitly out of scope — see "Out of scope" below.
 - **Python: bump 3.10 → 3.13.** Python 3.10 reached end-of-life October 1, 2026.
