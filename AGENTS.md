@@ -71,6 +71,20 @@ UI code runs on the main thread; anything that blocks on network I/O (mappers, E
 
 Eve SDE CSVs (`mapSolarSystems.csv`, `mapSolarSystemJumps.csv`, `mapLocationWormholeClasses.csv`) live in `src/database/` and are loaded by `evedb.py`. Refresh them from https://www.fuzzwork.co.uk/dump/latest/ when the SDE updates — see README.
 
+## Agent skills
+
+### Issue tracker
+
+Issues live in GitHub Issues (`mgoodness/shortcircuit`), via the `gh` CLI. See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+Default label vocabulary (`needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`). See `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+Single-context: `GLOSSARY.md` + `docs/adr/` at the repo root. See `docs/agents/domain.md`.
+
 ## Conventions
 
 - Python 3.10, 2-space indentation (see existing files).
