@@ -1,0 +1,52 @@
+name: Release Please
+
+# Cuts a release from Conventional Commits: opens (and, on merge, tags) a
+# release PR. The release PR bumps src/shortcircuit/__init__.py and writes
+# CHANGELOG.md.
+#
+# This workflow mints a short-lived token from a GitHub App instead of using
+# the default `secrets.GITHUB_TOKEN`, for two reasons:
+#   1. This repo has "Allow GitHub Actions to create and approve pull requests"
+#      turned off, so `GITHUB_TOKEN` cannot open the release PR at all.
+#   2. A PR/tag authored by `GITHUB_TOKEN` cannot trigger further workflows
+#      (the "loop-trap"), and its CI usually sits in `action_required` until a
+#      human approves it (the "gate-trap"). An App token clears both.
+#
+# This uses the one private App shared by all personal repos,
+# `mgoodness-release-please`, not a per-repo App. A human installs it once:
+#   run scripts/setup-release-please-app.sh
+# It sets the repo variable RELEASE_PLEASE_APP_CLIENT_ID and the secret
+# RELEASE_PLEASE_APP_PRIVATE_KEY consumed below.
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+# Never let two release-please runs race on the same branch.
+concurrency:
+  group: release-please-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  release-please:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Mint App token
+        id: app-token
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        with:
+          client-id: ${{ vars.RELEASE_PLEASE_APP_CLIENT_ID }}
+          private-key: ${{ secrets.RELEASE_PLEASE_APP_PRIVATE_KEY }}
+          permission-contents: write
+          permission-issues: write
+          permission-pull-requests: write
+
+      - name: Run release-please
+        uses: googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7 # v5.0.0
+        with:
+          token: ${{ steps.app-token.outputs.token }}
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
