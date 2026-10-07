@@ -16,10 +16,7 @@ jobs:
   # publishes the artifacts.
   build:
     name: Build
-    # Pinned actionlint cannot parse GitHub's newer `$/` self-repository form
-    # (actionlint 1.7.12); keep the older `./` form it does -- GitHub accepts
-    # both. Revisit once actionlint understands `$/`.
-    uses: ./.github/workflows/build.yml # zizmor: ignore[self-repository]
+    uses: $/.github/workflows/build.yml
     with:
       cache: false
 
