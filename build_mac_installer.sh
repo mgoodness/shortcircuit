@@ -21,7 +21,7 @@ python -O -m PyInstaller \
     --name shortcircuit src/main.py \
     --noupx \
     "${arch_args[@]}" \
-    --osx-bundle-identifier ru.secondfry.shortcircuit
+    --osx-bundle-identifier net.opsgoodness.shortcircuit
 
 cd dist || exit 1
 tar cfz shortcircuit.app.tar.gz shortcircuit.app

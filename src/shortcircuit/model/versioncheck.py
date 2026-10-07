@@ -33,7 +33,7 @@ class VersionCheck(QtCore.QObject):
     try:
       response = requests.get(
         url=
-        'https://api.github.com/repos/secondfry/shortcircuit/releases/latest',
+        'https://api.github.com/repos/mgoodness/shortcircuit/releases/latest',
         timeout=3.1,
       )
     except requests.exceptions.RequestException as e:

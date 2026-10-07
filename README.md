@@ -28,7 +28,7 @@ $ sudo apt-get install python-pyside
 ```
 
 ## Releases
-Binaries (executables) can be downloaded from [here](https://github.com/secondfry/shortcircuit/releases).
+Binaries (executables) can be downloaded from [here](https://github.com/mgoodness/shortcircuit/releases).
 
 ## SDE update
 In case of SDE update, get new `mapLocationWormholeClasses.csv`,

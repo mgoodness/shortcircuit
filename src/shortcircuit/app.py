@@ -8,7 +8,7 @@ from typing import Dict, List, Optional, TypedDict, Union
 
 from PySide6 import QtCore, QtGui, QtWidgets
 
-from . import __appname__, __date__ as last_update, __version__
+from . import __appname__, __appslug__, __date__ as last_update, __version__
 from .model.esi_processor import ESIProcessor
 from .model.evedb import EveDb, Restrictions, SpaceType, WormholeSize
 from .model.logger import Logger
@@ -288,7 +288,7 @@ class AboutDialog(QtWidgets.QDialog, Ui_AboutDialog):
   def icon_click(event):
     event.accept()
     QtGui.QDesktopServices.openUrl(
-      QtCore.QUrl("https://github.com/secondfry/shortcircuit")
+      QtCore.QUrl("https://github.com/mgoodness/shortcircuit")
     )
 
 
@@ -320,7 +320,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     self.settings = QtCore.QSettings(
       QtCore.QSettings.Format.IniFormat,
       QtCore.QSettings.Scope.UserScope,
-      __appname__,
+      __appslug__,
     )
 
     self.global_proxy: str = ""
@@ -1146,7 +1146,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
     QtGui.QDesktopServices.openUrl(
       QtCore.QUrl(
-        'https://github.com/secondfry/shortcircuit/releases/tag/{}'.format(
+        'https://github.com/mgoodness/shortcircuit/releases/tag/{}'.format(
           latest['tag_name']
         )
       )
