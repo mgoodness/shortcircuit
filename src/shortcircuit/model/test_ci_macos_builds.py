@@ -34,7 +34,7 @@ from pathlib import Path
 import pytest
 
 _REPO_ROOT = Path(__file__).resolve().parents[3]
-_WORKFLOW = _REPO_ROOT / '.github' / 'workflows' / 'main.yml'
+_WORKFLOW = _REPO_ROOT / '.github' / 'workflows' / 'build.yml'
 _BUILD_SCRIPT = _REPO_ROOT / 'build_mac_installer.sh'
 _WIN_BUILD_SCRIPT = _REPO_ROOT / 'build_win_installer.bat'
 _PIPFILE_LOCK = _REPO_ROOT / 'Pipfile.lock'
@@ -68,7 +68,8 @@ def test_macos_legs_build_both_architectures():
 def test_macos_artifacts_are_named_per_architecture():
   """Two macOS legs upload the same app; distinct names keep both artifacts."""
   text = _workflow_text()
-  assert 'name: shortcircuit-${{ matrix.arch }}.app.tar.gz' in text
+  assert 'shortcircuit-arm64.app.tar.gz' in text
+  assert 'shortcircuit-x86_64.app.tar.gz' in text
 
 
 def test_macholib_install_step_is_gone():
