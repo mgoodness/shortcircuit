@@ -94,6 +94,22 @@ Single-context: `GLOSSARY.md` + `docs/adr/` at the repo root. See `docs/agents/d
 
 ## Commit Message Guidelines
 
+### Subject Lines Are Conventional Commits
+
+Write the **subject line** of every commit, and the PR title, as
+`type: summary` — Conventional Commits. release-please reads them to pick the
+version bump and build `CHANGELOG.md`, and skips what it cannot parse,
+silently, so the change ships with no changelog entry at all.
+
+`feat:` is a user-facing feature, `fix:` a user-facing bug, `docs:` user-facing
+prose such as the README or an ADR. `chore:` and `ci:` are internal work — CI
+changes, tooling, agent conventions — and produce no changelog entry.
+
+The PR title is not decoration: this repo squash-merges under GitHub's
+`COMMIT_OR_PR_TITLE` setting, which takes the squash subject from the branch
+commit while the PR has one commit and only falls back to the PR title at two
+or more. Make both conventional, or the merge lands unparseable.
+
 ### Focus on the "Why", Not Just the "What"
 
 When writing commit messages, **always explain why the change was made**, not just what was changed. The diff already shows what changed - the commit message should provide context and reasoning.
@@ -141,6 +157,9 @@ to proceed, preventing the race condition.
 - Write for your future self and other engineers who may need to maintain this code
 
 ## Pull Request Description Guidelines
+
+The PR **title** is governed by [Subject Lines Are Conventional
+Commits](#subject-lines-are-conventional-commits).
 
 PR descriptions follow the same principles as commit messages: **focus on the "why", not just the "what"**.
 
