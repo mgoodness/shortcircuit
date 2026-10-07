@@ -8,7 +8,7 @@ from typing import Dict, List, Optional, TypedDict, Union
 
 from PySide6 import QtCore, QtGui, QtWidgets
 
-from . import __appname__, __appslug__, __date__ as last_update, __version__
+from . import __appname__, __appslug__, __version__
 from .model.esi_processor import ESIProcessor
 from .model.evedb import EveDb, Restrictions, SpaceType, WormholeSize
 from .model.logger import Logger
@@ -274,10 +274,9 @@ class AboutDialog(QtWidgets.QDialog, Ui_AboutDialog):
     super().__init__(parent)
     self.setupUi(self)
     self.label_title.setText(
-      '{} v{} ({})'.format(
+      '{} v{}'.format(
         __appname__,
         __version__,
-        last_update,
       )
     )
     # noinspection PyUnresolvedReferences
@@ -403,10 +402,9 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
   def additional_gui_setup(self):
     # Additional GUI setup
     self.setWindowTitle(
-      '{} v{} ({})'.format(
+      '{} v{}'.format(
         __appname__,
         __version__,
-        last_update,
       )
     )
     # FIXME(secondfry): removed heading
@@ -1129,9 +1127,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     version_box = QtWidgets.QMessageBox(self)
     version_box.setWindowTitle('New version available!')
     version_box.setText(
-      'Your version: v{} ({}).\nGitHub latest release: v{} ({}).\n\n{}'.format(
+      'Your version: v{}.\nGitHub latest release: v{} ({}).\n\n{}'.format(
         __version__,
-        last_update,
         version,
         latest['published_at'],
         changelog,
