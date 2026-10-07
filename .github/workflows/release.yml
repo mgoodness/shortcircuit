@@ -1,0 +1,103 @@
+name: Release
+
+# release-please creates the tag and a *draft* GitHub release; that tag push
+# lands here, which builds the binaries, attaches them to the draft, and then
+# publishes it. The draft-first order is what lets immutable releases be turned
+# on: a release that is already published can no longer have assets added.
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build ${{ matrix.artifact }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: windows-latest
+            artifact: shortcircuit.exe
+          - os: macos-15
+            arch: arm64
+            artifact: shortcircuit-arm64.app.tar.gz
+          - os: macos-15-intel
+            arch: x86_64
+            artifact: shortcircuit-x86_64.app.tar.gz
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
+
+      # No dependency cache here, deliberately: this workflow publishes the
+      # release, so a cache another workflow can write is a cache it could
+      # poison into the artifacts (zizmor's cache-poisoning audit).
+      - name: Setup Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        with:
+          python-version: "3.13"
+
+      - name: Download UPX [windows]
+        if: matrix.os == 'windows-latest'
+        run: curl -L -o upx-4.2.1-win64.zip https://github.com/upx/upx/releases/download/v4.2.1/upx-4.2.1-win64.zip
+
+      - name: Extract UPX [windows]
+        if: matrix.os == 'windows-latest'
+        run: |
+          7z x upx-4.2.1-win64.zip
+          copy upx-4.2.1-win64\upx.exe upx.exe
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install pipenv
+          python -m pipenv install --dev
+
+      # The tag is cut from a commit that already passed CI, but a release is a
+      # second, independent gate: re-run the checks before shipping a binary.
+      - name: Test
+        run: python -m pipenv run pytest
+
+      - name: Build [windows]
+        if: matrix.os == 'windows-latest'
+        run: python -m pipenv run build_win_installer.bat
+
+      - name: Build [macos]
+        if: startsWith(matrix.os, 'macos')
+        run: python -m pipenv run ./build_mac_installer.sh ${{ matrix.arch }}
+
+      # The build script always writes shortcircuit.app.tar.gz; name it per arch
+      # so the two macOS assets do not collide on the one release.
+      - name: Name the macOS artifact by architecture
+        if: startsWith(matrix.os, 'macos')
+        run: mv dist/shortcircuit.app.tar.gz "dist/${{ matrix.artifact }}"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: ${{ matrix.artifact }}
+          path: dist/${{ matrix.artifact }}
+          if-no-files-found: error
+
+  publish:
+    name: Publish release
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          path: dist
+          merge-multiple: true
+
+      - name: Attach assets and publish the draft release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          gh release upload "$TAG" dist/* --clobber
+          gh release edit "$TAG" --draft=false
