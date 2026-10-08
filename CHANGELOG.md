@@ -1,5 +1,18 @@
 # Changelog
 
+## [2.2.0](https://github.com/mgoodness/shortcircuit/compare/v2.1.0...v2.2.0) (2026-10-08)
+
+
+### Features
+
+* follow the OS light/dark appearance with a System theme mode ([#23](https://github.com/mgoodness/shortcircuit/issues/23)) ([ef984ac](https://github.com/mgoodness/shortcircuit/commit/ef984ac5e4a166020c6f7b863515906e0aa5b0aa))
+
+
+### Bug Fixes
+
+* match the window title bar to the selected theme ([#25](https://github.com/mgoodness/shortcircuit/issues/25)) ([b049d17](https://github.com/mgoodness/shortcircuit/commit/b049d176f04f1c985a147632663a354508727166))
+* rename the installed app to "Short Circuit" ([#26](https://github.com/mgoodness/shortcircuit/issues/26)) ([3f6028d](https://github.com/mgoodness/shortcircuit/commit/3f6028deb10a8c24206b929443ab34779fce9c1a))
+
 ## [2.1.0](https://github.com/mgoodness/shortcircuit/compare/v2.0.0...v2.1.0) (2026-10-08)
 
 
