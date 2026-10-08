@@ -148,6 +148,25 @@ QScrollBar::add-line, QScrollBar::sub-line {
 _ORIGINAL_STYLE_PROPERTY = "shortcircuit_original_style"
 
 
+def apply_color_scheme(mode: str) -> None:
+  """
+  Tell Qt which colour scheme the application wants.
+
+  Qt carries this through to native chrome — on macOS it sets the
+  application's ``NSAppearance``, which is what colours the title bar — and
+  to the default palette. ``light``/``dark`` pin the scheme (Qt then ignores
+  later OS changes); ``system`` un-pins it so the app follows the OS again and
+  keeps receiving ``colorSchemeChanged``. Requires Qt 6.8+.
+  """
+  hints = QtGui.QGuiApplication.styleHints()
+  if mode == THEME_DARK:
+    hints.setColorScheme(QtCore.Qt.ColorScheme.Dark)
+  elif mode == THEME_LIGHT:
+    hints.setColorScheme(QtCore.Qt.ColorScheme.Light)
+  else:
+    hints.unsetColorScheme()
+
+
 def current_color_scheme() -> QtCore.Qt.ColorScheme:
   """The OS/app colour scheme reported by Qt, for `THEME_SYSTEM`."""
   return QtGui.QGuiApplication.styleHints().colorScheme()

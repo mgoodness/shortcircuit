@@ -33,6 +33,7 @@ from .view.theme import (
   THEME_LIGHT,
   THEME_MODES,
   THEME_SYSTEM,
+  apply_color_scheme,
   apply_theme,
   current_color_scheme,
   resolve_dark,
@@ -336,6 +337,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     self.mapper_states: Dict[str, StateMapper] = {}
     self.dark_mode: bool = False
     self.theme_mode: str = THEME_SYSTEM
+    self._applying_theme: bool = False
     self._label_states: Dict[QtWidgets.QLabel, tuple] = {}
 
     self.state_eve_connection = StateEVEConnection({
@@ -528,12 +530,21 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
       self._apply_theme()
 
   def _apply_theme(self):
-    # `theme_mode` is the preference; `dark_mode` is the resolved appearance
-    # the rest of the UI branches on (label colours, priority spin boxes).
-    self.dark_mode = resolve_dark(self.theme_mode, current_color_scheme())
-    apply_theme(QtWidgets.QApplication.instance(), self.dark_mode)
-    self._apply_priority_spinbox_colors()
-    self._refresh_label_colors()
+    # Changing the colour scheme emits colorSchemeChanged synchronously, which
+    # re-enters here for System mode; the flag drops that redundant second pass.
+    if self._applying_theme:
+      return
+    self._applying_theme = True
+    try:
+      # `theme_mode` is the preference; `dark_mode` is the resolved appearance
+      # the rest of the UI branches on (label colours, priority spin boxes).
+      apply_color_scheme(self.theme_mode)
+      self.dark_mode = resolve_dark(self.theme_mode, current_color_scheme())
+      apply_theme(QtWidgets.QApplication.instance(), self.dark_mode)
+      self._apply_priority_spinbox_colors()
+      self._refresh_label_colors()
+    finally:
+      self._applying_theme = False
 
   def _apply_priority_spinbox_colors(self):
     if self.dark_mode:
