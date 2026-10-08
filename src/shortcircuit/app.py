@@ -1280,6 +1280,10 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
 def run():
   appl = QtWidgets.QApplication(sys.argv)
+  # Qt otherwise reports the executable's name ("shortcircuit") for the menu
+  # bar, window-manager hints, and notifications.
+  appl.setApplicationName(__appname__)
+  appl.setApplicationDisplayName(__appname__)
   form = MainWindow()
   form.show()
   appl.exec()

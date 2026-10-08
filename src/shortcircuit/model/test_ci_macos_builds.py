@@ -41,6 +41,7 @@ _WORKFLOW = _REPO_ROOT / '.github' / 'workflows' / 'build.yml'
 _BUILD_SCRIPT = _REPO_ROOT / 'build_mac_installer.sh'
 _SPEC = _REPO_ROOT / 'shortcircuit.spec'
 _WIN_BUILD_SCRIPT = _REPO_ROOT / 'build_win_installer.bat'
+_WIN_VERSION_SCRIPT = _REPO_ROOT / 'scripts' / 'windows_version_info.py'
 _PIPFILE_LOCK = _REPO_ROOT / 'Pipfile.lock'
 _REQUIREMENTS = _REPO_ROOT / 'requirements.txt'
 
@@ -108,6 +109,18 @@ def test_spec_derives_the_bundle_version_from_the_package():
   assert bundle['info_plist']['CFBundleVersion'] == __version__
 
 
+def test_spec_names_the_app_short_circuit():
+  """The bundle and its executable carry the user-visible name.
+
+  Finder, the Dock, and the menu bar read ``CFBundleName`` and
+  ``CFBundleDisplayName`` -- both derived by PyInstaller from the ``BUNDLE``
+  name -- and Activity Monitor reads the executable name.
+  """
+  stages = _capture_spec_stages()
+  assert stages['bundle']['name'] == 'Short Circuit.app'
+  assert stages['exe']['name'] == 'Short Circuit'
+
+
 def test_spec_forwards_the_target_arch_to_the_executable():
   """A spec argument sets ``EXE.target_arch``; with none, PyInstaller infers."""
   assert _capture_spec_stages()['exe']['target_arch'] is None
@@ -141,8 +154,69 @@ def test_build_script_is_valid_bash():
 
 
 def test_windows_build_still_uses_direct_flags():
-  """The onefile Windows build has no bundle metadata to set; leave it alone."""
+  """The onefile Windows build stays flag-based rather than using a spec."""
   assert 'shortcircuit.spec' not in _WIN_BUILD_SCRIPT.read_text(encoding='utf-8')
+
+
+def test_windows_build_embeds_the_user_visible_name():
+  """The exe stays slugged; the name comes from the version resource.
+
+  A raw onefile exe shows its filename in Explorer, so the user-visible name
+  has to live in the VERSIONINFO resource: ``FileDescription`` and
+  ``ProductName`` are what Explorer's Properties, Task Manager, and the
+  taskbar jump list read.
+  """
+  text = _WIN_BUILD_SCRIPT.read_text(encoding='utf-8')
+  assert '--name shortcircuit' in text
+  assert '--version-file' in text
+  assert 'windows_version_info.py' in text
+
+
+def test_windows_build_passes_the_entry_script():
+  """PyInstaller needs the script name; the flags alone are not enough."""
+  assert 'src\\main.py' in _WIN_BUILD_SCRIPT.read_text(encoding='utf-8')
+
+
+def test_windows_version_info_names_the_app():
+  """The generated resource carries the app name and the real version."""
+  from shortcircuit import __version__
+
+  text = _generate_windows_version_info()
+  assert "StringStruct('FileDescription', 'Short Circuit')" in text
+  assert "StringStruct('ProductName', 'Short Circuit')" in text
+  assert "StringStruct('OriginalFilename', 'shortcircuit.exe')" in text
+  assert "StringStruct('FileVersion', '{}')".format(__version__) in text
+
+
+def test_windows_version_info_loads_in_pyinstaller(tmp_path):
+  """PyInstaller must be able to ``eval`` the generated resource.
+
+  Its version-info module needs ``pefile``, a Windows-only dependency, so this
+  runs on the Windows CI leg and skips on macOS and Linux.
+  """
+  pytest.importorskip('pefile')
+  from PyInstaller.utils.win32.versioninfo import (
+    load_version_info_from_text_file,
+  )
+
+  path = tmp_path / 'version_info.txt'
+  path.write_text(_generate_windows_version_info(), encoding='utf-8')
+  info = load_version_info_from_text_file(str(path))
+  fields = {struct.name: struct.val for struct in info.kids[0].kids[0].kids}
+  assert fields['FileDescription'] == 'Short Circuit'
+  assert fields['ProductName'] == 'Short Circuit'
+  assert fields['OriginalFilename'] == 'shortcircuit.exe'
+
+
+def _generate_windows_version_info():
+  """Run the generator and return the version-file text it prints."""
+  result = subprocess.run(
+    [sys.executable, str(_WIN_VERSION_SCRIPT)],
+    capture_output=True,
+    text=True,
+    check=True,
+  )
+  return result.stdout
 
 
 @_needs_bash
@@ -184,8 +258,8 @@ def _record_macos_build_invocation(tmp_path, *arch):
   """Run ``build_mac_installer.sh`` with a recording stand-in for ``python``.
 
   Returns the argv the script handed to PyInstaller. The stand-in also lays
-  down the ``dist/shortcircuit.app`` the script archives, so the script runs to
-  completion without a real (minutes-long) build.
+  down the ``dist/Short Circuit.app`` the script archives, so the script runs
+  to completion without a real (minutes-long) build.
   """
   bin_dir = tmp_path / 'bin'
   bin_dir.mkdir()
@@ -194,7 +268,7 @@ def _record_macos_build_invocation(tmp_path, *arch):
   stub.write_text(
     '#!/bin/bash\n'
     'printf "%s\\n" "$@" > "$ARGV_FILE"\n'
-    'mkdir -p dist/shortcircuit.app\n',
+    'mkdir -p "dist/Short Circuit.app"\n',
     encoding='utf-8',
   )
   stub.chmod(0o755)
