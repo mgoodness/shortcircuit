@@ -1,27 +1,27 @@
 #!/bin/bash
 #
-# Build the macOS .app. Pass the target architecture (arm64, x86_64, or
-# universal2); the default is the architecture of the running Python. PySide6
-# ships a single universal2 wheel, so either slice builds from the same
-# dependency set -- this argument only tells PyInstaller which slice to keep.
+# Build the macOS .app from shortcircuit.spec. Pass the target architecture
+# (arm64, x86_64, or universal2); the default is the architecture of the running
+# Python. PySide6 ships a single universal2 wheel, so either slice builds from
+# the same dependency set -- this argument only tells PyInstaller which slice to
+# keep.
+#
+# The arch is forwarded to the spec after `--`. `--target-arch` is a
+# makespec-only option and PyInstaller rejects it when building from a spec
+# file, so the spec parses the value itself.
 
 target_arch="${1:-}"
 
-arch_args=()
+spec_args=()
 if [ -n "$target_arch" ]; then
-    arch_args=(--target-arch "$target_arch")
+    spec_args=(-- "$target_arch")
 fi
 
 python -O -m PyInstaller \
     --clean \
-    --windowed \
-    --icon resources/images/app_icon.icns \
-    --add-data 'src/database/*:database' \
     --noconfirm \
-    --name shortcircuit src/main.py \
-    --noupx \
-    "${arch_args[@]}" \
-    --osx-bundle-identifier net.opsgoodness.shortcircuit
+    shortcircuit.spec \
+    "${spec_args[@]}"
 
 cd dist || exit 1
 tar cfz shortcircuit.app.tar.gz shortcircuit.app

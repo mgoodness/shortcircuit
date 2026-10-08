@@ -159,7 +159,16 @@ This makes arm64-only a stated, enforced property of the build (PyInstaller's ar
 
 ### `shortcircuit.spec` — delete
 
-Confirmed dead: neither `build_mac_installer.sh` nor `build_win_installer.bat` reference it (both pass PyInstaller flags via CLI directly). Remove the file; no replacement needed.
+Confirmed dead at migration time: neither `build_mac_installer.sh` nor
+`build_win_installer.bat` referenced it (both passed PyInstaller flags via CLI
+directly), so it was removed.
+
+> **Reversed later.** The spec is back and is now the macOS build's source of
+truth. PyInstaller's CLI cannot set the bundle version or arbitrary
+`Info.plist` keys — `version=` and `info_plist=` exist only on `BUNDLE` in a
+spec file — so the `.app` was reporting PyInstaller's hardcoded `0.0.0` for
+`CFBundleShortVersionString` instead of the released `__version__`. See
+`shortcircuit.spec` and `build_mac_installer.sh`.
 
 ### Unaffected, confirmed
 
