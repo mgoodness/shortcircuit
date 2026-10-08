@@ -16,8 +16,10 @@ ADR-0001 dropped Intel Macs because a universal2 build roughly doubles the
 installed app size. That cost is real, but it is not the whole ledger:
 
 - PySide6 ships a single **universal2** PyPI wheel, so the dependency set is
-  identical for both slices — the only difference is PyInstaller's
-  `--target-arch`, plus a second CI runner (`macos-15-intel`).
+  identical for both slices — the only difference is the target architecture
+  PyInstaller thins the bundle to (a spec argument to
+  [`shortcircuit.spec`](../../shortcircuit.spec)), plus a second CI runner
+  (`macos-15-intel`).
 - The alternative to keeping Intel is telling Intel users to build from source,
   which is a worse outcome than a larger download for a base that is cheap to
   keep.
