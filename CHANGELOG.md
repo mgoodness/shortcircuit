@@ -1,5 +1,17 @@
 # Changelog
 
+## [2.1.0](https://github.com/mgoodness/shortcircuit/compare/v2.0.0...v2.1.0) (2026-10-08)
+
+
+### Features
+
+* add a dark mode toggle ([#19](https://github.com/mgoodness/shortcircuit/issues/19)) ([ad56db7](https://github.com/mgoodness/shortcircuit/commit/ad56db77bffc37e75f6cf2c9300143c798710e9e))
+
+
+### Bug Fixes
+
+* report the real release version in the macOS .app ([#22](https://github.com/mgoodness/shortcircuit/issues/22)) ([386889a](https://github.com/mgoodness/shortcircuit/commit/386889a81de7755eeaee39d725edd3d99c463a99))
+
 ## [2.0.0](https://github.com/mgoodness/shortcircuit/compare/v1.3.0...v2.0.0) (2026-10-07)
 
 
