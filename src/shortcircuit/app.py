@@ -28,7 +28,15 @@ from .view.gui_about import Ui_AboutDialog
 from .view.gui_main import Ui_MainWindow
 from .view.gui_mappers import Ui_MappersDialog
 from .view.gui_tripwire import Ui_TripwireDialog
-from .view.theme import apply_theme
+from .view.theme import (
+  THEME_DARK,
+  THEME_LIGHT,
+  THEME_MODES,
+  THEME_SYSTEM,
+  apply_theme,
+  current_color_scheme,
+  resolve_dark,
+)
 
 
 class StateEVEConnection(TypedDict):
@@ -327,6 +335,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     self.mapper_configs: List[MapperConfig] = []
     self.mapper_states: Dict[str, StateMapper] = {}
     self.dark_mode: bool = False
+    self.theme_mode: str = THEME_SYSTEM
     self._label_states: Dict[QtWidgets.QLabel, tuple] = {}
 
     self.state_eve_connection = StateEVEConnection({
@@ -479,18 +488,50 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
       self.table_item_selection_changed
     )
 
-    # View menu
+    # View menu: Light / Dark / System (follow the OS). The three are
+    # mutually exclusive, so they live in a QActionGroup; the checked entry is
+    # the stored preference, which is not always the resolved appearance.
     menu_view = self.menubar.addMenu("&View")
-    self.action_dark_mode = QtGui.QAction("&Dark Mode", self)
-    self.action_dark_mode.setCheckable(True)
-    self.action_dark_mode.toggled.connect(self.toggle_dark_mode)
-    menu_view.addAction(self.action_dark_mode)
-    self.action_dark_mode.setChecked(self.dark_mode)
+    self.theme_action_group = QtGui.QActionGroup(self)
+    self.theme_action_group.setExclusive(True)
+    self.theme_actions: Dict[str, QtGui.QAction] = {}
+    for mode, label in (
+      (THEME_LIGHT, "&Light"),
+      (THEME_DARK, "&Dark"),
+      (THEME_SYSTEM, "&System"),
+    ):
+      action = QtGui.QAction(label, self)
+      action.setCheckable(True)
+      action.triggered.connect(partial(self.set_theme_mode, mode))
+      self.theme_action_group.addAction(action)
+      menu_view.addAction(action)
+      self.theme_actions[mode] = action
+    self.theme_actions[self.theme_mode].setChecked(True)
 
-  @QtCore.Slot(bool)
-  def toggle_dark_mode(self, enabled: bool):
-    self.dark_mode = enabled
-    apply_theme(QtWidgets.QApplication.instance(), enabled)
+    # System mode follows the OS live, so react to appearance changes.
+    QtGui.QGuiApplication.styleHints().colorSchemeChanged.connect(
+      self._on_os_color_scheme_changed
+    )
+    self._apply_theme()
+
+  def set_theme_mode(self, mode: str, _checked: bool = False):
+    """Store the Light/Dark/System preference and apply what it resolves to."""
+    self.theme_mode = mode
+    action = self.theme_actions.get(mode)
+    if action is not None:
+      action.setChecked(True)
+    self._apply_theme()
+
+  def _on_os_color_scheme_changed(self, _scheme=None):
+    # A pinned Light/Dark choice is left alone; only System tracks the OS.
+    if self.theme_mode == THEME_SYSTEM:
+      self._apply_theme()
+
+  def _apply_theme(self):
+    # `theme_mode` is the preference; `dark_mode` is the resolved appearance
+    # the rest of the UI branches on (label colours, priority spin boxes).
+    self.dark_mode = resolve_dark(self.theme_mode, current_color_scheme())
+    apply_theme(QtWidgets.QApplication.instance(), self.dark_mode)
     self._apply_priority_spinbox_colors()
     self._refresh_label_colors()
 
@@ -586,8 +627,19 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     self.spinBox_prio_ns.setValue(int(self.settings.value("prio_ns", "1")))
     self.spinBox_prio_wh.setValue(int(self.settings.value("prio_wh", "1")))
 
-    # Appearance
-    self.dark_mode = self.settings.value("dark_mode", "false") == "true"
+    # Appearance: `theme_mode` (light/dark/system) replaced the old boolean
+    # `dark_mode` key. An upgraded install keeps whatever it had pinned; a
+    # fresh one (neither key present) follows the OS.
+    stored_mode = self.settings.value("theme_mode")
+    if stored_mode in THEME_MODES:
+      self.theme_mode = stored_mode
+    elif self.settings.contains("dark_mode"):
+      self.theme_mode = (
+        THEME_DARK
+        if self.settings.value("dark_mode", "false") == "true" else THEME_LIGHT
+      )
+    else:
+      self.theme_mode = THEME_SYSTEM
 
     self.settings.endGroup()
 
@@ -645,7 +697,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     self.settings.setValue("prio_wh", self.spinBox_prio_wh.value())
 
     # Appearance
-    self.settings.setValue("dark_mode", self.dark_mode)
+    self.settings.setValue("theme_mode", self.theme_mode)
 
     self.settings.endGroup()
 
