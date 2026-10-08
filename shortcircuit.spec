@@ -49,7 +49,7 @@ exe = EXE(
     a.scripts,
     [],
     exclude_binaries=True,
-    name='shortcircuit',
+    name='Short Circuit',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
@@ -69,11 +69,11 @@ coll = COLLECT(
     strip=False,
     upx=False,
     upx_exclude=[],
-    name='shortcircuit',
+    name='Short Circuit',
 )
 app = BUNDLE(
     coll,
-    name='shortcircuit.app',
+    name='Short Circuit.app',
     icon='resources/images/app_icon.icns',
     bundle_identifier='net.opsgoodness.shortcircuit',
     version=__version__,

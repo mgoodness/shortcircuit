@@ -24,4 +24,6 @@ python -O -m PyInstaller \
     "${spec_args[@]}"
 
 cd dist || exit 1
-tar cfz shortcircuit.app.tar.gz shortcircuit.app
+# The tarball keeps the slugged name so release asset URLs stay clean; the app
+# inside it is the user-visible "Short Circuit.app".
+tar cfz shortcircuit.app.tar.gz "Short Circuit.app"
