@@ -110,6 +110,15 @@ The PR title is not decoration: this repo squash-merges under GitHub's
 commit while the PR has one commit and only falls back to the PR title at two
 or more. Make both conventional, or the merge lands unparseable.
 
+### Prefer Squash or Rebase; Merge Commits Only for Upstream Syncs
+
+Squash and rebase are the default and strongly preferred ways to land a PR.
+A merge commit is allowed only when preserving history is the whole point:
+syncing this fork with `upstream/master`. A real merge keeps upstream as an
+ancestor, which advances git's merge base so the next sync merges only *new*
+upstream commits. Squash or rebase drops that ancestry and makes every sync
+re-resolve the same conflicts from the pre-port commit.
+
 ### Focus on the "Why", Not Just the "What"
 
 When writing commit messages, **always explain why the change was made**, not just what was changed. The diff already shows what changed - the commit message should provide context and reasoning.
