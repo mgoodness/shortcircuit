@@ -38,7 +38,7 @@ pipenv run pytest src/shortcircuit/model/test_tripwire.py::TestX   # single test
 Build standalone binaries:
 ```bash
 ./build_win_installer.bat   # Windows, PyInstaller --onefile
-./build_mac_installer.sh    # macOS
+./build_mac_installer.sh    # macOS; both read shortcircuit.spec, which prunes unused Qt pieces
 ```
 
 ## Architecture
@@ -109,6 +109,15 @@ The PR title is not decoration: this repo squash-merges under GitHub's
 `COMMIT_OR_PR_TITLE` setting, which takes the squash subject from the branch
 commit while the PR has one commit and only falls back to the PR title at two
 or more. Make both conventional, or the merge lands unparseable.
+
+### Prefer Squash or Rebase; Merge Commits Only for Upstream Syncs
+
+Squash and rebase are the default and strongly preferred ways to land a PR.
+A merge commit is allowed only when preserving history is the whole point:
+syncing this fork with `upstream/master`. A real merge keeps upstream as an
+ancestor, which advances git's merge base so the next sync merges only *new*
+upstream commits. Squash or rebase drops that ancestry and makes every sync
+re-resolve the same conflicts from the pre-port commit.
 
 ### Focus on the "Why", Not Just the "What"
 
