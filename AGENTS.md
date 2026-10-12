@@ -119,6 +119,16 @@ ancestor, which advances git's merge base so the next sync merges only *new*
 upstream commits. Squash or rebase drops that ancestry and makes every sync
 re-resolve the same conflicts from the pre-port commit.
 
+### A Sync Merge Is Invisible to release-please — Record It
+
+release-please skips merge commits and cannot parse upstream's plain subjects,
+so a sync that brings user-facing changes proposes **no release** even though
+the changes are on `main`. After such a sync, record what the release carries in
+a `fix:` (or `feat:`) commit: the code is already on `main`, so the commit can
+be empty and its subject is the release signal. `release-as` in
+`release-please-config.json` is the alternative, but it needs a follow-up commit
+to remove it. See the 2.2.1 release for a worked example.
+
 ### Focus on the "Why", Not Just the "What"
 
 When writing commit messages, **always explain why the change was made**, not just what was changed. The diff already shows what changed - the commit message should provide context and reasoning.
