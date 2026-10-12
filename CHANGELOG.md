@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.2.1](https://github.com/mgoodness/shortcircuit/compare/v2.2.0...v2.2.1) (2026-10-12)
+
+
+### Bug Fixes
+
+* record upstream's macOS and system-type fixes for the release ([76785d0](https://github.com/mgoodness/shortcircuit/commit/76785d0fdaabec815c9719e8bb2b5385f637e45b))
+
 ## [2.2.0](https://github.com/mgoodness/shortcircuit/compare/v2.1.0...v2.2.0) (2026-10-08)
 
 
