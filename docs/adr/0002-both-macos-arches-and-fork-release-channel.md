@@ -4,6 +4,11 @@ status: accepted
 
 # Ship both macOS architectures and own the fork's release channel
 
+> **Partially superseded.** [ADR-0004](0004-universal2-macos-app.md) replaces
+> section 1: the fork now ships one universal2 app on `macos-latest` rather
+> than two per-architecture builds. Section 2 — the fork owning its release
+> channel and identity — still stands.
+
 This supersedes [ADR-0001](0001-arm64-only-macos-no-rosetta.md) on one point —
 macOS architecture support — and records a second decision ADR-0001 did not
 cover: how this fork relates to upstream when it versions releases. ADR-0001's
@@ -26,8 +31,9 @@ installed app size. That cost is real, but it is not the whole ledger:
 
 So the fork builds both: `macos-15` → arm64 and `macos-15-intel` → x86_64, each
 a thin app uploaded under its own artifact name. A single **universal2** binary
-stays rejected for the same size reason ADR-0001 gave. The same change was
-proposed upstream, so a merged upstream and this fork build identically.
+stays rejected for the same size reason ADR-0001 gave. Upstream later chose a
+universal2 build instead, which this fork has since adopted — see
+[ADR-0004](0004-universal2-macos-app.md).
 
 ## 2. The release channel is the contract, not the version number
 
