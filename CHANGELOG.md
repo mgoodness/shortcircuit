@@ -5,7 +5,11 @@
 
 ### Bug Fixes
 
-* record upstream's macOS and system-type fixes for the release ([76785d0](https://github.com/mgoodness/shortcircuit/commit/76785d0fdaabec815c9719e8bb2b5385f637e45b))
+* integrate upstream's post-port fixes ([#27](https://github.com/mgoodness/shortcircuit/pull/27)):
+  * classify wormhole systems as wormhole space in `EveDb.system_type`, instead of null-sec;
+  * restore macOS 12 Monterey support by pinning PySide6 to 6.9.x, the last series built for it;
+  * stamp the installed app with the real release version.
+* ship one universal2 macOS app on macOS 12 or newer instead of two per-architecture downloads, with unused Qt modules pruned from the bundle ([76785d0](https://github.com/mgoodness/shortcircuit/commit/76785d0fdaabec815c9719e8bb2b5385f637e45b))
 
 ## [2.2.0](https://github.com/mgoodness/shortcircuit/compare/v2.1.0...v2.2.0) (2026-10-08)
 
